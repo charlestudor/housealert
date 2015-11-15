@@ -26,13 +26,16 @@ public class MyGCMListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message");
+        String location = data.getString("location");
+        int alertTime = data.getInt("time");
 
-        if (from.startsWith("/topics/")) {
-            // message received from some topic.
-        } else {
-            // normal downstream message.
-        }
+        String message = new String("Location: " + location + ". Time:" + alertTime + ".");
+
+//        if (from.startsWith("/topics/")) {
+//            // message received from some topic.
+//        } else {
+//            // normal downstream message.
+//        }
 
         // [START_EXCLUDE]
         /**
@@ -65,7 +68,7 @@ public class MyGCMListenerService extends GcmListenerService {
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_ic_notification)
-                .setContentTitle("GCM Message")
+                .setContentTitle("HouseAlert")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

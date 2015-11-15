@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         mTextView = (TextView) findViewById(R.id.scrolllog);
+        mTextView.setKeyListener(null);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
                         PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences
                         .getBoolean(RegStatus.SENT_TOKEN_TO_SERVER, false);
+                String tokenStr = sharedPreferences.getString("tokenKey", "null");
                 if (sentToken) {
                     addMessage("Token retrieved and sent to server!");
                 } else {
@@ -66,32 +68,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
         addMessage("Initialising...");
-
         if(checkPlayServices()) {
-            addMessage("Google Play Services are unavailable.");
-            addMessage("No further action taken.");
+            addMessage("Google Play Services are available.");
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
         }
 
-        addMessage("Google Play Services available...");
-
-        // Start IntentService to register this application with GCM.
-        Intent intent = new Intent(this, RegistrationIntentService.class);
-        startService(intent);
-
+        addMessage("HouseAlert is active!");
     }
 
-    public void addMessage(String msg) {
+    private void addMessage(String msg) {
         // append the new string
         mTextView.append(msg + "\n");
-        // find the amount we need to scroll.  This works by
-        // asking the TextView's internal layout for the position
-        // of the final line and then subtracting the TextView's height
-        final int scrollAmount = mTextView.getLayout().getLineTop(mTextView.getLineCount()) - mTextView.getHeight();
-        // if there is no need to scroll, scrollAmount will be <=0
-        if (scrollAmount > 0)
-            mTextView.scrollTo(0, scrollAmount);
-        else
-            mTextView.scrollTo(0, 0);
+//        // find the amount we need to scroll.  This works by
+//        // asking the TextView's internal layout for the position
+//        // of the final line and then subtracting the TextView's height
+//        final int scrollAmount = mTextView.getLayout().getLineTop(mTextView.getLineCount()) - mTextView.getHeight();
+//        // if there is no need to scroll, scrollAmount will be <=0
+//        if (scrollAmount > 0)
+//            mTextView.scrollTo(0, scrollAmount);
+//        else
+//            mTextView.scrollTo(0, 0);
     }
 
     @Override
@@ -138,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
+            addMessage("Result Code:" + resultCode);
             if (apiAvailability.isUserResolvableError(resultCode)) {
                 apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
                         .show();
