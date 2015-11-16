@@ -57,16 +57,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
-        Button but = (Button) findViewById(R.id.exitbutton);
-        but.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-                System.exit(0);
-            }
-        });
-
         addMessage("Initialising...");
         if(checkPlayServices()) {
             addMessage("Google Play Services are available.");
@@ -107,7 +97,13 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            // Start menu activity
+            Intent intent = new Intent(this, SettingsMenuActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.action_exits) {
+            // Exit application
+            finish();
+            System.exit(0);
         }
 
         return super.onOptionsItemSelected(item);

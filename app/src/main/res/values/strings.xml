@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">HouseAlert</string>
+
+
     <string name="action_settings">Settings</string>
+    <string name="action_exits">Exit</string>
     <string name="exitStr">Exit</string>
     <string name="gcm_defaultProjID">467236759981</string>
 </resources>
