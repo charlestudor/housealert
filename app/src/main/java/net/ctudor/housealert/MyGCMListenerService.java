@@ -1,10 +1,13 @@
 package net.ctudor.housealert;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,7 +30,7 @@ public class MyGCMListenerService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
         String location = data.getString("location");
-        int alertTime = data.getInt("time");
+        String  alertTime = data.getString("time");
 
         String message = new String("Location: " + location + ". Time:" + alertTime + ".");
 
@@ -65,13 +68,16 @@ public class MyGCMListenerService extends GcmListenerService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
+        Bitmap largeNotificationIcon = BitmapFactory.decodeResource(getResources(), R.drawable.housetrans);
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.housetrans)
+                .setLargeIcon(largeNotificationIcon)
                 .setContentTitle("HouseAlert")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setPriority(Notification.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =
