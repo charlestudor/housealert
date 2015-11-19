@@ -30,9 +30,9 @@ public class MyGCMListenerService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
         String location = data.getString("location");
-        String  alertTime = data.getString("time");
+        String alertTime = data.getString("time");
 
-        String message = new String("Location: " + location + ". Time:" + alertTime + ".");
+        String message = new String(location + ": " + alertTime + ".");
 
 //        if (from.startsWith("/topics/")) {
 //            // message received from some topic.
