@@ -52,6 +52,7 @@ public class MyGCMListenerService extends GcmListenerService {
          * In some cases it may be useful to show a notification indicating to the user
          * that a message was received.
          */
+
         sendNotification(message);
         // [END_EXCLUDE]
     }
@@ -78,7 +79,9 @@ public class MyGCMListenerService extends GcmListenerService {
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setPriority(Notification.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                //.setDefaults(Notification.DEFAULT_VIBRATE)
+                .setVibrate(new long[] {0, 200, 70, 400, 70, 200, 600, 200, 70, 400, 70, 200} );
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
