@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -30,16 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private TextView mTextView;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private boolean mSplashHasShown = false;
+    private boolean mTokenIsAvailableLocal = false;
+    private String mTokenLocalCopy = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        mTextView = (TextView) findViewById(R.id.scrolllog);
-        mTextView.setKeyListener(null);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -48,14 +48,44 @@ public class MainActivity extends AppCompatActivity {
                         PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences
                         .getBoolean(RegStatus.SENT_TOKEN_TO_SERVER, false);
-                String tokenStr = sharedPreferences.getString("tokenKey", "null");
+                mTokenLocalCopy = sharedPreferences.getString("tokenKey", "null");
+                mTokenIsAvailableLocal = true;
+
                 if (sentToken) {
                     addMessage("Token retrieved and sent to server!");
+                    addMessage("Your token is: " + mTokenLocalCopy);
                 } else {
                     addMessage("An error occurred while either fetching the InstanceID token");
                 }
             }
         };
+
+        if(!mSplashHasShown) {
+            View decorView = getWindow().getDecorView();
+            decorView.setBackgroundColor(Color.BLACK);
+
+            // Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+
+            setContentView(R.layout.splash_screen);
+
+            LinearLayout splashLayout = (LinearLayout) findViewById(R.id.splash);
+            splashLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    hideSplash();
+                }
+            });
+            mSplashHasShown = true;
+        } else {
+            hideSplash();
+        }
+    }
+
+    private void createMainLayout() {
+        mTextView = (TextView) findViewById(R.id.scrolllog);
+        mTextView.setKeyListener(null);
 
         addMessage("Initialising...");
         if(checkPlayServices()) {
@@ -120,6 +150,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
+    }
+
+    private void hideSplash() {
+        View decorView = getWindow().getDecorView();
+        decorView.setBackgroundColor(Color.WHITE);
+
+        // Show the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+        decorView.setSystemUiVisibility(uiOptions);
+
+        // Remove splash view
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        createMainLayout();
     }
 
     /**
