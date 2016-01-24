@@ -1,6 +1,7 @@
 package net.ctudor.housealert;
 
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,6 +14,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.content.ClipboardManager;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -75,9 +78,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     hideSplash();
+                    mSplashHasShown = true;
                 }
             });
-            mSplashHasShown = true;
         } else {
             hideSplash();
         }
@@ -86,6 +89,39 @@ public class MainActivity extends AppCompatActivity {
     private void createMainLayout() {
         mTextView = (TextView) findViewById(R.id.scrolllog);
         mTextView.setKeyListener(null);
+
+        Button copyButton = (Button) findViewById(R.id.copyTokenButton);
+        copyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTokenIsAvailableLocal) {
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    clipboard.setPrimaryClip(ClipData.newPlainText("tokenCopy", mTokenLocalCopy));
+                    Toast.makeText(getApplicationContext(), "Copied to clipboard.", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "No token available.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        Button emailButton = (Button) findViewById(R.id.emailTokenButton);
+        emailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mTokenIsAvailableLocal) {
+                    final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+
+                    emailIntent.setType("plain/text");
+                    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "My HouseAlert Key");
+                    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "My new HouseAlert key is: " + mTokenLocalCopy);
+
+                    v.getContext().startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "No token available.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
         addMessage("Initialising...");
         if(checkPlayServices()) {
